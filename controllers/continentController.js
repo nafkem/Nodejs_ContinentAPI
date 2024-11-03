@@ -1,17 +1,37 @@
 const continents = []; // In-memory storage for continents
+let nextId = 1; // Initialize unique ID for continents
+
+// Helper function to sanitize and validate input
+function sanitizeInput(input) {
+  return input.trim().toLowerCase(); // Remove spaces around and convert to lowercase
+}
 
 // Create a continent
 exports.createContinent = (req, res) => {
-  const { name, numberOfCountries, description } = req.body;
-  if (continents.some(continent => continent.name === name)) {
+  let { name, numberOfCountries, description } = req.body;
+
+  // Sanitize and validate input
+  if (!name || !numberOfCountries || !description) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Sanitize inputs
+  name = sanitizeInput(name);
+  description = description.trim();
+
+  // Check if continent already exists (case-insensitive)
+  if (continents.some(continent => sanitizeInput(continent.name) === name)) {
     return res.status(400).json({ message: "Continent already exists" });
   }
+
+  // Create new continent with sanitized and validated data
   const newContinent = {
-    id: continents.length + 1,
+    id: nextId++,
     name,
-    numberOfCountries,
+    numberOfCountries: parseInt(numberOfCountries), // Convert to number
     description,
   };
+
   continents.push(newContinent);
   res.status(201).json(newContinent);
 };
@@ -34,8 +54,10 @@ exports.updateContinent = (req, res) => {
   if (!continent) return res.status(404).json({ message: "Continent not found" });
 
   const { numberOfCountries, description } = req.body;
-  if (numberOfCountries) continent.numberOfCountries = numberOfCountries;
-  if (description) continent.description = description;
+
+  if (numberOfCountries) continent.numberOfCountries = parseInt(numberOfCountries);
+  if (description) continent.description = description.trim();
+
   res.json(continent);
 };
 

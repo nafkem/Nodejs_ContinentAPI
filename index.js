@@ -1,17 +1,15 @@
-const express = require("express");
-const continentRoutes = require("./routes/continentRoutes");
+const express = require('express');
+const app = express();
+const continentRoutes = require('./routes/continentRoutes');
 
-const app = express(); // Create the Express app
-const PORT = 5000;
+// Middleware to parse JSON
+app.use(express.json());
 
-app.use(express.json()); // Middleware to parse JSON
+// Register continent routes
+app.use('/api', continentRoutes);
 
-app.use("/api", continentRoutes); // Use the continent routes
-
-// Start the server
+// Start server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
-module.exports = app; // Export the app if needed for testing
